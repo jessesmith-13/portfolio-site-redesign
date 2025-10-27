@@ -2,75 +2,43 @@
 export const revalidate = 60; // optional: ISR, regenerate every 60 seconds
 
 import Header from '../components/Header';
+import Hero from '@/components/Hero';
 import About from '../components/About';
-import Project from '../components/Project';
-import Technology from '../components/Technology';
+import Projects from '../components/Projects';
+import Technologies from '../components/Technologies';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 
+// Map Strapi block types to React components
+const componentMap: Record<string, React.FC<any>> = {
+  'blocks.hero-section': Hero,
+  'blocks.about-section': About,
+  'blocks.projects-section': Projects,
+  'blocks.technologies-section': Technologies,
+  'blocks.contact-section': Contact,
+};
+
 // Type definitions for Strapi response
-interface HomeAttributes {
-  Heading: string; // matches your Strapi field exactly
+
+interface Block {
+  __component: string;
+  id: number;
+  [key: string]: unknown; // allows flexibility for all block fields
 }
 
-interface StrapiResponse {
-  data: {
-    id: number;
-    Heading: string;
-  };
-}
-
-interface Header {
+interface StrapiHeader {
   id: number;
   documentId: string;
-  logo: string;
+  logo: any;
+  navLinks: NavLink[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
 }
 
-interface About {
+interface Home {
   id: number;
-  documentId: string;
-  Title: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-}
-
-interface Projects {
-  data: Project[]
-}
-
-interface Project {
-  id: number;
-  documentId: string;
-  heading: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-}
-
-interface Technologies {
-  data: Technology[]
-}
-
-interface Technology {
-  id: number;
-  documentId: string;
-  heading: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-}
-
-interface Contact {
-  id: number;
-  documentId: string;
-  heading: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
+  blocks: Block[];
 }
 
 interface Footer {
@@ -82,64 +50,22 @@ interface Footer {
   publishedAt: string;
 }
 
-async function getHeader(): Promise<Header> {
-  const res = await fetch('http://localhost:1337/api/header');
+async function getHeader(): Promise<StrapiHeader> {
+  const res = await fetch('http://localhost:1337/api/header?populate=*');
   if (!res.ok) throw new Error('Failed to fetch header');
   const data = await res.json();
   return data.data; // direct, no attributes
 }
 
-async function getHome(): Promise<HomeAttributes> {
-  const res = await fetch('http://localhost:1337/api/home');
+async function getHome(): Promise<Home> {
+  const res = await fetch('http://localhost:1337/api/home?populate=*');
   if (!res.ok) {
     throw new Error('Failed to fetch home');
   }
-  const data: StrapiResponse = await res.json();
-  return data.data; // now has .Heading
-}
-
-async function getAbout(): Promise<About> {
-  const res = await fetch('http://localhost:1337/api/about');
-  if (!res.ok) throw new Error('Failed to fetch about');
   const data = await res.json();
-  return data.data; // direct, no attributes
-}
 
-async function getProjects(): Promise<Project[]> {
-  const res = await fetch('http://localhost:1337/api/projects', {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  return data.data;
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch projects');
-  }
-
-  const data: Projects = await res.json();
-  return data.data; // returns array of projects
-}
-
-async function getTechnologies(): Promise<Project[]> {
-  const res = await fetch('http://localhost:1337/api/technologies', {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch technologies');
-  }
-
-  const data: Technologies = await res.json();
-  return data.data; // returns array of technologies
-}
-
-async function getContact(): Promise<Contact> {
-  const res = await fetch('http://localhost:1337/api/contact');
-  if (!res.ok) throw new Error('Failed to fetch contact');
-  const data = await res.json();
-  return data.data; // direct, no attributes
 }
 
 async function getFooter(): Promise<Footer> {
@@ -153,57 +79,25 @@ export default async function HomePage() {
 
   const header = await getHeader();
   const home = await getHome();
-  const about = await getAbout();
-  const projects = await getProjects();
-  const technologies = await getTechnologies();
-  const contact = await getContact();
   const footer = await getFooter();
   
   return (
     <main>
       <Header
         logo={header.logo}
-      >
+        navLinks={header.navLinks}
+      />
+  
+     {home.blocks.map((block: Block) => {
+        const Component = componentMap[block.__component];
+        if (!Component) return null;
+        const uniqueKey = `${block.__component}-${block.id}`;
+        return <Component key={uniqueKey} data={block} />;
+      })}
 
-      </Header>
-      <ul>
-        {home.Heading && (
-        <section style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-          <h2>About Me</h2>
-          <p>{home.Heading}</p>
-        </section>
-        )}
-      </ul>
-      <About
-        Title={about.Title}
-      >
-      </About>
-      {projects.map((project) => (
-        <Project
-          heading={project.heading}
-          key={project.id}
-        >
-
-        </Project>
-      ))}
-      {technologies.map((technology) => (
-        <Technology
-          heading={technology.heading}
-          key={technology.id}
-        >
-
-        </Technology>
-      ))}
-      <Contact
-        heading={contact.heading}
-      >
-
-      </Contact>
       <Footer
         heading={footer.heading}
-      >
-
-      </Footer>
+      />
     </main>
   );
 }

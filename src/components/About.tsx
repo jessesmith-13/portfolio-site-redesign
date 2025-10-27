@@ -1,12 +1,16 @@
 interface AboutProps {
-  Title: string;
+  data: {
+    Title: string
+  };
 } 
 
 
-export default function About({ Title }: AboutProps) {
+export default function About({ data }: AboutProps) {
+
+  console.log (data)
   return (
-    <header style={{ padding: '2rem', textAlign: 'center', background: '#f5f5f5' }}>
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{Title}</h1>
-    </header>
+    <section style={{ padding: '2rem', textAlign: 'center', background: 'blue' }}>
+      <h1 style={{ fontSize: '2.5rem', color: 'black', marginBottom: '0.5rem' }}>{data.Title}</h1>
+    </section>
   );
 }

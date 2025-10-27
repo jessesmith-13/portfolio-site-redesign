@@ -1,9 +1,9 @@
-interface ProjectProps {
+interface ProjectsProps {
   heading: string;
 } 
 
 
-export default function Project({ heading }: ProjectProps) {
+export default function Projects({ heading }: ProjectsProps) {
   return (
     <header style={{ padding: '2rem', textAlign: 'center', background: '#f5f5f5' }}>
       <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{heading}</h1>

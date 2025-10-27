@@ -3,7 +3,7 @@ interface TechnologiesProps {
 } 
 
 
-export default function Technoogy({ heading }: TechnologiesProps) {
+export default function Technoogies({ heading }: TechnologiesProps) {
   return (
     <header style={{ padding: '2rem', textAlign: 'center', background: '#f5f5f5' }}>
       <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{heading}</h1>
