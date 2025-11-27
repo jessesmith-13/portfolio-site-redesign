@@ -154,7 +154,6 @@ export default async function HomePage() {
 
   const header = await getHeader();
   const home = await getHome();
-  const footer = await getFooter();
   const blocks = home.blocks;
   
   return (
@@ -172,7 +171,6 @@ export default async function HomePage() {
           })}
       </main>
         <Footer
-          heading={footer.heading}
         />
     </div>
   );
