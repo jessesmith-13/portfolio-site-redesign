@@ -9,7 +9,6 @@ import Projects from '../components/Projects';
 import Technologies from '../components/Technologies';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
-import type { StrapiImage } from '../../types/strapi';
 import qs from 'qs';
 
 // Map Strapi block types to React components
@@ -166,28 +165,78 @@ async function getHeader(): Promise<StrapiHeader | null> {
   }
 }
 
-async function getHome(): Promise<Home> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/home?${query}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch home');
-  }
-  const data = await res.json();
+async function getHome(): Promise<Home | null> {
+  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
 
-  return data.data;
+  if (!baseUrl) {
+    console.error("❌ NEXT_PUBLIC_STRAPI_URL is not defined");
+    return null;
+  }
+
+  const url = `${baseUrl}/api/home?${query}`;
+
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",             // avoid stale build errors
+      next: { revalidate: 30 },      // optional: helps with cold starts
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("❌ Strapi responded with error (home):", res.status, text);
+      return null;
+    }
+
+    const json = await res.json();
+
+    if (!json?.data) {
+      console.error("❌ Strapi home missing .data:", json);
+      return null;
+    }
+
+    return json.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch home from Strapi:", err);
+    return null;
+  }
 }
 
-async function getFooter(): Promise<Footer> {
-  const res = await fetch('http://localhost:1337/api/footer');
-  if (!res.ok) throw new Error('Failed to fetch footer');
-  const data = await res.json();
-  return data.data; // direct, no attributes
+async function getFooter(): Promise<Footer | null> {
+  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+
+  if (!baseUrl) {
+    console.error("❌ NEXT_PUBLIC_STRAPI_URL is not defined");
+    return null;
+  }
+
+  const url = `${baseUrl}/api/footer`;
+
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+      next: { revalidate: 30 },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("❌ Strapi responded with error (footer):", res.status, text);
+      return null;
+    }
+
+    const json = await res.json();
+    return json.data ?? null;
+  } catch (err) {
+    console.error("❌ Failed to fetch footer:", err);
+    return null;
+  }
 }
 
 export default async function HomePage() {
 
   const header = await getHeader();
   const home = await getHome();
-  const blocks = home.blocks;
+  const blocks = home?.blocks ?? [];
+  const footer = await getFooter();
   
   return (
     <div className="min-h-screen">
@@ -205,7 +254,7 @@ export default async function HomePage() {
             return <Component key={uniqueKey} data={block} />;
           })}
       </main>
-        <Footer/>
+        {footer && <Footer/>}
     </div>
   );
 }
