@@ -129,11 +129,40 @@ const query = qs.stringify(
   { encodeValuesOnly: true }
 );
 
-async function getHeader(): Promise<StrapiHeader> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/header?populate[logo][populate]=*&populate[navLinks]=*`);
-  if (!res.ok) throw new Error('Failed to fetch header');
-  const data = await res.json();
-  return data.data; // direct, no attributes
+async function getHeader(): Promise<StrapiHeader | null> {
+  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+
+  if (!baseUrl) {
+    console.error("❌ NEXT_PUBLIC_STRAPI_URL is not defined");
+    return null;
+  }
+
+  const url = `${baseUrl}/api/header?populate[logo][populate]=*&populate[navLinks]=*&cb=${Date.now()}`;
+
+  try {
+    const res = await fetch(url, {
+      cache: "no-store", // prevents Vercel from caching stale failures
+      next: { revalidate: 30 }, // allows Strapi warmups after cold starts
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("❌ Strapi responded with error:", res.status, text);
+      return null;
+    }
+
+    const json = await res.json();
+
+    if (!json?.data) {
+      console.error("❌ Strapi response did not include .data:", json);
+      return null;
+    }
+
+    return json.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch header from Strapi:", err);
+    return null; // prevents build crash!
+  }
 }
 
 async function getHome(): Promise<Home> {
