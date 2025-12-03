@@ -25,31 +25,34 @@ export default function Contact() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setSubmitStatus('idle');
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    
+    try {
+      console.log('FORM DATA', formData)
+      console.log("ENV:", process.env.NEXT_PUBLIC_STRAPI_URL);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/contact`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
+      console.log ('email sending')
+      if (!res.ok) throw new Error('Failed to submit form');
 
-    if (!res.ok) throw new Error('Failed to submit form');
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '' });
 
-    setSubmitStatus('success');
-    setFormData({ name: '', email: '', message: '' });
-
-  } catch (err) {
-    console.error('Contact form error:', err);
-    setSubmitStatus('error');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section id="contact" className="min-h-screen bg-[#C8E6A0] py-16 sm:py-20 lg:py-24 flex items-center snap-start snap-always">
