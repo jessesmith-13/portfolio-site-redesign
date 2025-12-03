@@ -1,4 +1,5 @@
 // app/page.tsx
+export const dynamic = "force-dynamic";
 export const revalidate = 60; // optional: ISR, regenerate every 60 seconds
 
 import Header from '../components/Header';
