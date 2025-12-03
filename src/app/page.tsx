@@ -201,42 +201,12 @@ async function getHome(): Promise<Home | null> {
   }
 }
 
-async function getFooter(): Promise<Footer | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
-
-  if (!baseUrl) {
-    console.error("❌ NEXT_PUBLIC_STRAPI_URL is not defined");
-    return null;
-  }
-
-  const url = `${baseUrl}/api/footer`;
-
-  try {
-    const res = await fetch(url, {
-      cache: "no-store",
-      next: { revalidate: 30 },
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("❌ Strapi responded with error (footer):", res.status, text);
-      return null;
-    }
-
-    const json = await res.json();
-    return json.data ?? null;
-  } catch (err) {
-    console.error("❌ Failed to fetch footer:", err);
-    return null;
-  }
-}
 
 export default async function HomePage() {
 
   const header = await getHeader();
   const home = await getHome();
   const blocks = home?.blocks ?? [];
-  const footer = await getFooter();
   
   return (
     <div className="min-h-screen">
@@ -254,7 +224,7 @@ export default async function HomePage() {
             return <Component key={uniqueKey} data={block} />;
           })}
       </main>
-        {footer && <Footer/>}
+        <Footer/>
     </div>
   );
 }
