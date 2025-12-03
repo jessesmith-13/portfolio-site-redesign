@@ -39,7 +39,10 @@ interface StrapiHeader {
   id: number;
   documentId: string;
   logo: {
-    image: StrapiImage
+    image: {
+      url: string;
+      alternativeText: string; // ❌ too strict
+    }
   };
   navLinks: NavLink[];
   createdAt: string;
