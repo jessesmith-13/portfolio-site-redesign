@@ -190,10 +190,12 @@ export default async function HomePage() {
   
   return (
     <div className="min-h-screen">
-        <Header
-          logo={header.logo}
-          navLinks={header.navLinks}
-        />
+        {header &&
+           <Header
+            logo={header.logo}
+            navLinks={header.navLinks}
+          /> 
+        }
       <main className="md:snap-y md:snap-mandatory overflow-y-scroll h-screen">
         {blocks.map((block: Block) => {
             const Component = componentMap[block.__component];
@@ -202,8 +204,7 @@ export default async function HomePage() {
             return <Component key={uniqueKey} data={block} />;
           })}
       </main>
-        <Footer
-        />
+        <Footer/>
     </div>
   );
 }
