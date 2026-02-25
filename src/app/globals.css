@@ -42,14 +42,14 @@
 
   /* Portfolio Palette */
   --color-header: #3d4654;
-  --color-gold: #FCBF28;
-  --color-gold-dark: #F5A623;
-  --color-pink: #EFADAD;
-  --color-pink-light: #F5C9C9;
-  --color-green: #C8E6A0;
-  --color-green-light: #D8F0B0;
-  --color-blue: #7A95A8;
-  --color-blue-dark: #5A7585;
+  --color-gold: #fcbf28;
+  --color-gold-dark: #f5a623;
+  --color-pink: #efadad;
+  --color-pink-light: #f5c9c9;
+  --color-green: #c8e6a0;
+  --color-green-light: #d8f0b0;
+  --color-blue: #7a95a8;
+  --color-blue-dark: #5a7585;
   --color-text-dark: #3d4654;
   --color-text-light: #f5f5f5;
 }
@@ -115,4 +115,50 @@
   input {
     @apply text-base leading-relaxed;
   }
+}
+
+/* Testimonials carousel animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Character fade-in animation for typewriter effect */
+@keyframes charFadeIn {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+.animate-charFadeIn {
+  animation: charFadeIn 0.3s ease-out forwards;
+}
+
+/* Smooth word fade-in animation */
+@keyframes wordFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-wordFadeIn {
+  animation: wordFadeIn 0.4s ease-out forwards;
 }
