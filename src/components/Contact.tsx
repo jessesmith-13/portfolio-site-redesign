@@ -1,19 +1,22 @@
 'use client'
 
-import React, { useState } from 'react';
-import { Mail, Send } from 'lucide-react';
-import Input from './ui/Input';
-import Textarea from './ui/TextArea';
-import { Button } from './ui/Button';
+import React, { useState } from 'react'
+import { Mail, Send, Calculator } from 'lucide-react'
+import Input from './ui/Input'
+import Textarea from './ui/TextArea'
+import { Button } from './ui/Button'
+import Link from 'next/link'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<
+    'idle' | 'success' | 'error'
+  >('idle')
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -21,41 +24,46 @@ export default function Contact() {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-    
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+
     try {
       console.log('FORM DATA', formData)
-      console.log("ENV:", process.env.NEXT_PUBLIC_STRAPI_URL);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      console.log('ENV:', process.env.NEXT_PUBLIC_STRAPI_URL)
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/contact`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        }
+      )
 
-      console.log ('email sending')
-      if (!res.ok) throw new Error('Failed to submit form');
+      console.log('email sending')
+      if (!res.ok) throw new Error('Failed to submit form')
 
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-
+      setSubmitStatus('success')
+      setFormData({ name: '', email: '', message: '' })
     } catch (err) {
-      console.error('Contact form error:', err);
-      setSubmitStatus('error');
+      console.error('Contact form error:', err)
+      setSubmitStatus('error')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
-    <section id="contact" className="min-h-screen bg-[#C8E6A0] py-16 sm:py-20 lg:py-24 flex items-center snap-start snap-always">
+    <section
+      id="contact"
+      className="min-h-screen bg-[#C8E6A0] py-16 sm:py-20 lg:py-24 flex items-center snap-start snap-always"
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
@@ -66,6 +74,27 @@ export default function Contact() {
             <p className="text-[#3d4654] text-lg">
               Have a project in mind? Let&apos;s work together!
             </p>
+          </div>
+
+          {/* CTA to Estimate Page */}
+          <div className="bg-gradient-to-r from-[#FCBF28]/10 to-[#7A95A8]/10 border-2 border-[#FCBF28] rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-left flex-1">
+                <h3 className="text-[#3d4654] font-semibold text-lg mb-1">
+                  Need a Project Estimate?
+                </h3>
+                <p className="text-[#3d4654]/80 text-sm">
+                  Get an instant ballpark estimate with this interactive
+                  calculator
+                </p>
+              </div>
+              <Link href="/estimate">
+                <Button className="bg-[#FCBF28] hover:bg-[#e5ab1a] text-[#3d4654] font-semibold px-6 py-3 rounded-lg transition-all duration-200 inline-flex items-center space-x-2 whitespace-nowrap shadow-lg hover:shadow-xl">
+                  <Calculator className="w-5 h-5" />
+                  <span>Get Estimate</span>
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Contact Form */}
@@ -118,7 +147,7 @@ export default function Contact() {
                   required
                   rows={6}
                   className="w-full bg-gray-50 border-gray-300 focus:border-[#7A95A8] focus:ring-[#7A95A8] resize-none"
-                  placeholder="Tell me about your project..."
+                  placeholder="Have a question or want to discuss something specific? Let me know!"
                 />
               </div>
 
@@ -172,5 +201,5 @@ export default function Contact() {
         </div>
       </div>
     </section>
-  );
+  )
 }
