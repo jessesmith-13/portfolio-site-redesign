@@ -1,47 +1,76 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface NavLink {
-  label: string,
-  href: string,
+  label: string
+  href: string
   id: number
 }
 
 interface Logo {
   image: {
-    url: string,
+    url: string
     alternativeText: string
   }
 }
 
 interface HeaderProps {
-  logo: Logo;
-  navLinks: NavLink[];
-} 
+  logo: Logo
+  navLinks: NavLink[]
+}
 
-export default function Header({ logo, navLinks}: HeaderProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+export default function Header({ logo, navLinks }: HeaderProps) {
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const isHomePage = pathname === '/'
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
+      setIsScrolled(window.scrollY > 20)
     }
-  };
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const scrollToSection = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault()
+
+    if (!isHomePage) {
+      // Navigate to home page first, then scroll
+      router.push('/')
+      setTimeout(() => {
+        const element = document.querySelector(href)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 100)
+    } else {
+      const element = document.querySelector(href)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+    setIsMobileMenuOpen(false)
+  }
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    if (isHomePage) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      router.push('/')
+    }
+  }
 
   return (
     <header
@@ -56,16 +85,13 @@ export default function Header({ logo, navLinks}: HeaderProps) {
             key="#home"
             href="#home"
             className="hover:opacity-80 transition-opacity"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onClick={handleLogoClick}
           >
-          <img
-            src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${logo.image.url}`}
-            alt={`${process.env.NEXT_PUBLIC_STRAPI_URL}${logo.image.alternativeText}`}
-            className="w-12 h-12 rounded-full "
-          />
+            <img
+              src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${logo.image.url}`}
+              alt={`${process.env.NEXT_PUBLIC_STRAPI_URL}${logo.image.alternativeText}`}
+              className="w-12 h-12 rounded-full "
+            />
           </a>
 
           {/* Desktop Navigation */}
@@ -80,6 +106,12 @@ export default function Header({ logo, navLinks}: HeaderProps) {
                 {link.label}
               </a>
             ))}
+            <button
+              onClick={() => router.push('/estimate')}
+              className="bg-[#FCBF28] hover:bg-[#e5ab1a] text-[#3d4654] font-semibold px-5 py-2 rounded-lg transition-colors duration-200"
+            >
+              Estimate
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -120,10 +152,19 @@ export default function Header({ logo, navLinks}: HeaderProps) {
                   {link.label}
                 </a>
               ))}
+              <button
+                onClick={() => {
+                  router.push('/estimate')
+                  setIsMobileMenuOpen(false)
+                }}
+                className="bg-[#FCBF28] hover:bg-[#e5ab1a] text-[#3d4654] font-semibold px-5 py-2 rounded-lg transition-colors duration-200 text-left"
+              >
+                Estimate
+              </button>
             </div>
           </div>
         )}
       </nav>
     </header>
-  );
+  )
 }
