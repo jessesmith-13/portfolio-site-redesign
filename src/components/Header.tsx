@@ -46,14 +46,8 @@ export default function Header({ logo, navLinks }: HeaderProps) {
     e.preventDefault()
 
     if (!isHomePage) {
-      // Navigate to home page first, then scroll
-      router.push('/')
-      setTimeout(() => {
-        const element = document.querySelector(href)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-      }, 100)
+      // Navigate to home page WITH the hash
+      router.push(`/${href}`)
     } else {
       const element = document.querySelector(href)
       if (element) {
